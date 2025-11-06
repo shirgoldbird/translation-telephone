@@ -64,7 +64,7 @@ export default function ApiKeyInput({ onApiKeyChange }: ApiKeyInputProps) {
         onClick={handleOpenModal}
         className="text-sm text-gray-700 hover:text-[#0177A9] transition-colors"
       >
-        Change API Key
+        {t.changeAPIKey}
       </button>
 
       {/* Modal Backdrop - semi-transparent overlay */}
@@ -95,9 +95,9 @@ export default function ApiKeyInput({ onApiKeyChange }: ApiKeyInputProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
               </svg>
               <div className="flex-1 pr-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Enter Your DeepL API Key</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{t.enterYourDeepLAPIKey}</h3>
                 <p className="text-sm text-gray-700 mb-4">
-                  Get a free API key at{' '}
+                  {t.getFreeAPIKeyAt}{' '}
                   <a
                     href="https://www.deepl.com/pro-api"
                     target="_blank"
@@ -106,7 +106,7 @@ export default function ApiKeyInput({ onApiKeyChange }: ApiKeyInputProps) {
                   >
                     deepl.com/pro-api
                   </a>
-                  {' '}(500k characters/month free). Your key is stored locally in your browser only.
+                  {' '}{t.keyStoredLocally}
                 </p>
                 <div className="flex gap-2 mb-2">
                   <input
@@ -131,7 +131,7 @@ export default function ApiKeyInput({ onApiKeyChange }: ApiKeyInputProps) {
                     disabled={!apiKey.trim()}
                     className="px-6 py-2 bg-[#0177A9] text-white font-medium rounded-lg hover:bg-[#015F8A] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
-                    Save
+                    {t.save}
                   </button>
                 </div>
                 {apiKey && (
@@ -139,7 +139,7 @@ export default function ApiKeyInput({ onApiKeyChange }: ApiKeyInputProps) {
                     onClick={handleClearKey}
                     className="text-sm text-gray-600 hover:text-gray-800 underline"
                   >
-                    Clear saved key
+                    {t.clearSavedKey}
                   </button>
                 )}
               </div>

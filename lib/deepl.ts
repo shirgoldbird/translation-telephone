@@ -55,30 +55,54 @@ export async function translateText(
 }
 
 export function calculateDivergence(original: string, backTranslated: string): number {
-  // Very minimal stop words - only the most meaningless words
-  const stopWords = new Set([
+  // Very minimal stop words - only the most meaningless words (English)
+  const englishStopWords = new Set([
     'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'of'
   ]);
 
-  // Aggressive normalization: remove ALL punctuation and special characters
+  // Hebrew stop words
+  const hebrewStopWords = new Set([
+    'של', 'את', 'על', 'עם', 'אל', 'זה', 'זאת', 'כל', 'יש'
+  ]);
+
+  // Arabic stop words
+  const arabicStopWords = new Set([
+    'من', 'في', 'على', 'إلى', 'هذا', 'هذه', 'كل', 'مع'
+  ]);
+
+  const allStopWords = new Set([...englishStopWords, ...hebrewStopWords, ...arabicStopWords]);
+
+  // Normalize text - handle Unicode properly
   const normalize = (text: string) => {
     return text
       .toLowerCase()
-      .replace(/[^\w\s]/g, ' ')  // Replace all punctuation with spaces
-      .replace(/\s+/g, ' ')       // Normalize whitespace
+      // Normalize Unicode (handle different representations of same character)
+      .normalize('NFKC')
+      // Remove punctuation but preserve word characters from all scripts
+      .replace(/[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-./:;<=>?@[\]^_`{|}~]/g, ' ')
+      // Normalize whitespace
+      .replace(/\s+/g, ' ')
       .trim();
   };
 
-  // Extract all words, filtering only the most basic stop words
+  // Extract all words, filtering stop words
   const getWords = (text: string): string[] => {
     const words = normalize(text)
       .split(' ')
-      .filter(w => w.length > 0 && !stopWords.has(w));
+      .filter(w => w.length > 0 && !allStopWords.has(w));
     return words;
   };
 
   const words1 = getWords(original);
   const words2 = getWords(backTranslated);
+
+  // Debug logging for non-Latin scripts
+  const hasNonLatin = /[^\u0000-\u007F]/.test(original);
+  if (hasNonLatin) {
+    console.log('Divergence calculation for non-Latin text:');
+    console.log('  Original words:', words1.slice(0, 5), `(${words1.length} total)`);
+    console.log('  Back-translated words:', words2.slice(0, 5), `(${words2.length} total)`);
+  }
 
   // If no words in either, consider them identical
   if (words1.length === 0 && words2.length === 0) {
@@ -98,6 +122,13 @@ export function calculateDivergence(original: string, backTranslated: string): n
 
   const similarity = intersection.size / union.size;
   const divergence = Math.round((1 - similarity) * 100);
+
+  if (hasNonLatin) {
+    console.log('  Intersection size:', intersection.size);
+    console.log('  Union size:', union.size);
+    console.log('  Similarity:', similarity);
+    console.log('  Divergence:', divergence, '%');
+  }
 
   return Math.max(0, Math.min(100, divergence));
 }

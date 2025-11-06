@@ -5,17 +5,21 @@ import TranslationInput from '@/components/TranslationInput';
 import ResultsDisplay from '@/components/ResultsDisplay';
 import UILanguageSelector from '@/components/UILanguageSelector';
 import ApiKeyInput from '@/components/ApiKeyInput';
-import { useUILanguage } from '@/components/UILanguageProvider';
+import { UILanguageProvider, useUILanguage } from '@/components/UILanguageProvider';
 import { TranslationChainResult, type LanguageCode } from '@/lib/types';
 
-export default function TranslationTelephoneApp() {
+interface TranslationTelephoneAppInnerProps {
+  apiKey: string;
+  setApiKey: (key: string) => void;
+}
+
+function TranslationTelephoneAppInner({ apiKey, setApiKey }: TranslationTelephoneAppInnerProps) {
   const { t } = useUILanguage();
   const [result, setResult] = useState<TranslationChainResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
   const [currentStep, setCurrentStep] = useState<TranslationChainResult['steps'][0] | null>(null);
-  const [apiKey, setApiKey] = useState<string>('');
 
   const handleTranslate = async (text: string, languageChain: LanguageCode[]) => {
     if (!apiKey) {
@@ -189,7 +193,7 @@ export default function TranslationTelephoneApp() {
             </h1>
           </div>
           <p className="text-gray-600 text-base">
-            {t.subtitle}. How similar will it be on the other side? 🤔
+            {t.subtitle}. {t.subtitleQuestion} 🤔
           </p>
         </div>
 
@@ -333,25 +337,24 @@ export default function TranslationTelephoneApp() {
               </a>
             </p>
             <p className="text-gray-500 text-sm">
-              Get your{' '}
+              {t.getYourFreeAPIKey}{' '}
               <a
                 href="https://www.deepl.com/pro-api"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[#0177A9] hover:text-[#015F8A] underline transition-colors"
               >
-                free API key
+                {t.getAPIKey}
               </a>
-              {' '}(500k characters/month)
             </p>
             <p className="text-gray-500 text-sm flex items-center justify-center gap-1">
-              Built with{' '}
+              {t.builtWith}{' '}
               <img
                 src="/claude-logo.png"
                 alt="Claude"
                 className="w-4 h-4 inline-block"
               />
-              {' '}by{' '}
+              {' '}{t.by}{' '}
               <a
                 href="https://shirgoldberg.com"
                 target="_blank"
@@ -365,5 +368,15 @@ export default function TranslationTelephoneApp() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function TranslationTelephoneApp() {
+  const [apiKey, setApiKey] = useState<string>('');
+
+  return (
+    <UILanguageProvider apiKey={apiKey}>
+      <TranslationTelephoneAppInner apiKey={apiKey} setApiKey={setApiKey} />
+    </UILanguageProvider>
   );
 }

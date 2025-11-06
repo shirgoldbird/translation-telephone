@@ -1,5 +1,8 @@
 export type LanguageCode = string;
 
+// Re-export UILanguageCode from i18n for convenience
+export type { UILanguageCode } from './i18n';
+
 export interface TranslationStep {
   text: string;
   language: LanguageCode;

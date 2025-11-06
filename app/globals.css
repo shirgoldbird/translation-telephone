@@ -28,6 +28,32 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
+/* RTL Support */
+[dir="rtl"] {
+  text-align: right;
+}
+
+/* Use unicode-bidi to handle mixed content (RTL text + emojis/numbers) */
+[dir="rtl"] * {
+  unicode-bidi: plaintext;
+}
+
+/* Keep buttons and inputs properly aligned in RTL */
+[dir="rtl"] button,
+[dir="rtl"] input,
+[dir="rtl"] select {
+  unicode-bidi: embed;
+}
+
+/* Flip margin/padding utilities for RTL */
+[dir="rtl"] .gap-2 {
+  gap: 0.5rem;
+}
+
+[dir="rtl"] .gap-4 {
+  gap: 1rem;
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
