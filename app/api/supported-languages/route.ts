@@ -66,12 +66,16 @@ export async function GET(request: NextRequest) {
       if (code.startsWith('pt-')) code = 'pt';
       if (code.startsWith('zh-')) code = 'zh';
 
+      // Simplify language names (remove variants in parentheses)
+      let englishName = lang.name.replace(/\s*\([^)]*\)/g, '').trim();
+
       const nativeName = nativeNames[code];
-      const displayName = nativeName ? `${nativeName} (${lang.name})` : lang.name;
+      const displayName = nativeName ? `${nativeName} (${englishName})` : englishName;
 
       return {
         code,
         name: displayName,
+        englishName, // Store English name for sorting
         deeplCode: lang.code, // Keep original for translation
       };
     });
@@ -84,8 +88,8 @@ export async function GET(request: NextRequest) {
       return true;
     });
 
-    // Sort by name
-    uniqueLanguages.sort((a, b) => a.name.localeCompare(b.name));
+    // Sort by English name alphabetically
+    uniqueLanguages.sort((a, b) => a.englishName.localeCompare(b.englishName));
 
     return NextResponse.json({ languages: uniqueLanguages });
   } catch (error) {
