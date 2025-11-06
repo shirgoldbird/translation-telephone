@@ -3,9 +3,9 @@ import * as deepl from 'deepl-node';
 
 export async function GET(request: NextRequest) {
   try {
-    // Get API key from query params (user's key) or env (fallback)
+    // Get API key from query params (user's key)
     const { searchParams } = new URL(request.url);
-    const apiKey = searchParams.get('apiKey') || process.env.DEEPL_API_KEY;
+    const apiKey = searchParams.get('apiKey');
 
     if (!apiKey) {
       return NextResponse.json(

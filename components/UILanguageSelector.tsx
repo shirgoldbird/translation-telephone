@@ -10,34 +10,47 @@ interface SupportedLanguage {
   deeplCode: string;
 }
 
-export default function UILanguageSelector() {
+interface UILanguageSelectorProps {
+  apiKey?: string;
+}
+
+export default function UILanguageSelector({ apiKey }: UILanguageSelectorProps) {
   const { language, setLanguage, t } = useUILanguage();
-  const [languages, setLanguages] = useState<SupportedLanguage[]>([]);
+  const [languages, setLanguages] = useState<SupportedLanguage[]>([
+    { code: 'en', name: 'English', deeplCode: 'EN-GB' }
+  ]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch supported languages from DeepL
+    // Fetch supported languages from DeepL using user's API key
     async function fetchLanguages() {
       try {
-        const response = await fetch('/api/supported-languages');
+        // If no API key, just show English
+        if (!apiKey) {
+          setLanguages([{ code: 'en', name: 'English', deeplCode: 'EN-GB' }]);
+          setIsLoading(false);
+          return;
+        }
+
+        const response = await fetch(`/api/supported-languages?apiKey=${encodeURIComponent(apiKey)}`);
         if (response.ok) {
           const data = await response.json();
           setLanguages(data.languages);
         } else {
-          // Fallback to hardcoded list
-          setLanguages(UI_LANGUAGES.map(l => ({ ...l, deeplCode: l.code.toUpperCase() })));
+          // Fallback to English only
+          setLanguages([{ code: 'en', name: 'English', deeplCode: 'EN-GB' }]);
         }
       } catch (error) {
         console.error('Failed to fetch languages:', error);
-        // Fallback to hardcoded list
-        setLanguages(UI_LANGUAGES.map(l => ({ ...l, deeplCode: l.code.toUpperCase() })));
+        // Fallback to English only
+        setLanguages([{ code: 'en', name: 'English', deeplCode: 'EN-GB' }]);
       } finally {
         setIsLoading(false);
       }
     }
 
     fetchLanguages();
-  }, []);
+  }, [apiKey]);
 
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCode = e.target.value as UILanguageCode;

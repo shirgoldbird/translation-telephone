@@ -176,7 +176,7 @@ function TranslationTelephoneAppInner({ apiKey, setApiKey }: TranslationTelephon
         {/* Header with Settings */}
         <div className="flex justify-end items-center gap-4 mb-6">
           <ApiKeyInput onApiKeyChange={setApiKey} />
-          <UILanguageSelector />
+          <UILanguageSelector apiKey={apiKey} />
         </div>
 
         {/* Title and Subtitle */}
