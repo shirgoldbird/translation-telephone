@@ -57,35 +57,44 @@ export default function ApiKeyInput({ onApiKeyChange }: ApiKeyInputProps) {
     }
   };
 
-  if (!showModal && apiKey) {
-    return (
+  return (
+    <>
+      {/* Always show the button */}
       <button
         onClick={handleOpenModal}
         className="text-sm text-gray-700 hover:text-[#0177A9] transition-colors"
       >
         Change API Key
       </button>
-    );
-  }
 
-  return (
-    <>
-      {/* Modal Backdrop */}
+      {/* Modal Backdrop - semi-transparent overlay */}
       {showModal && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-40 flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.05)' }}
           onClick={handleCloseModal}
         >
           {/* Modal Content */}
           <div
-            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6"
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-gray-300 relative"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Close Button */}
+            <button
+              onClick={handleCloseModal}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Close"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
             <div className="flex items-start gap-3 mb-4">
               <svg className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
               </svg>
-              <div className="flex-1">
+              <div className="flex-1 pr-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Enter Your DeepL API Key</h3>
                 <p className="text-sm text-gray-700 mb-4">
                   Get a free API key at{' '}
