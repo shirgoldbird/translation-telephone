@@ -4,22 +4,26 @@ import { useState, useEffect, useRef } from 'react';
 import { useUILanguage } from './UILanguageProvider';
 
 interface ApiKeyInputProps {
-  onApiKeyChange: (key: string) => void;
+  onApiKeyChange: (key: string, isFree: boolean) => void;
 }
 
 export default function ApiKeyInput({ onApiKeyChange }: ApiKeyInputProps) {
   const { t } = useUILanguage();
   const [apiKey, setApiKey] = useState('');
+  const [isFree, setIsFree] = useState(true); // Default to Free
   const [showModal, setShowModal] = useState(false);
   const [inputType, setInputType] = useState<'password' | 'text'>('password');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Load API key from localStorage on mount
+    // Load API key and type from localStorage on mount
     const savedKey = localStorage.getItem('deepl_api_key');
+    const savedType = localStorage.getItem('deepl_api_type');
     if (savedKey) {
       setApiKey(savedKey);
-      onApiKeyChange(savedKey);
+      const savedIsFree = savedType === 'free';
+      setIsFree(savedIsFree);
+      onApiKeyChange(savedKey, savedIsFree);
     } else {
       // Show modal if no key saved
       setShowModal(true);
@@ -29,7 +33,8 @@ export default function ApiKeyInput({ onApiKeyChange }: ApiKeyInputProps) {
   const handleSaveKey = () => {
     if (apiKey.trim()) {
       localStorage.setItem('deepl_api_key', apiKey.trim());
-      onApiKeyChange(apiKey.trim());
+      localStorage.setItem('deepl_api_type', isFree ? 'free' : 'pro');
+      onApiKeyChange(apiKey.trim(), isFree);
       setShowModal(false);
       setInputType('password');
     }
@@ -37,8 +42,10 @@ export default function ApiKeyInput({ onApiKeyChange }: ApiKeyInputProps) {
 
   const handleClearKey = () => {
     localStorage.removeItem('deepl_api_key');
+    localStorage.removeItem('deepl_api_type');
     setApiKey('');
-    onApiKeyChange('');
+    setIsFree(true);
+    onApiKeyChange('', true);
     setShowModal(true);
   };
 
@@ -108,6 +115,31 @@ export default function ApiKeyInput({ onApiKeyChange }: ApiKeyInputProps) {
                   </a>
                   {' '}{t.keyStoredLocally}
                 </p>
+
+                {/* API Type Selector */}
+                <div className="mb-3 flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="apiType"
+                      checked={isFree}
+                      onChange={() => setIsFree(true)}
+                      className="w-4 h-4 text-[#0177A9] focus:ring-[#0177A9]"
+                    />
+                    <span className="text-sm text-gray-700">DeepL Free</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="apiType"
+                      checked={!isFree}
+                      onChange={() => setIsFree(false)}
+                      className="w-4 h-4 text-[#0177A9] focus:ring-[#0177A9]"
+                    />
+                    <span className="text-sm text-gray-700">DeepL Pro</span>
+                  </label>
+                </div>
+
                 <div className="flex gap-2 mb-2">
                   <input
                     ref={inputRef}

@@ -80,6 +80,7 @@ async function translateStrings(
   langCode: string,
   apiKey: string,
   deeplCode?: string,
+  isFree?: boolean,
   onProgress?: (current: number, total: number) => void
 ): Promise<TranslationCache> {
   const translations: TranslationCache = {};
@@ -100,6 +101,7 @@ async function translateStrings(
         targetLang: langCode,
         deeplCode,
         apiKey,
+        isFree,
       }),
     });
 
@@ -129,7 +131,8 @@ async function translateStrings(
 export function useTranslation(
   langCode: UILanguageCode,
   apiKey?: string,
-  deeplCode?: string
+  deeplCode?: string,
+  isFree?: boolean
 ): TranslationState {
   const [state, setState] = useState<TranslationState>({
     translations: UI_STRINGS,
@@ -196,7 +199,7 @@ export function useTranslation(
       setState(prev => ({ ...prev, isLoading: true, error: null }));
 
       try {
-        const translations = await translateStrings(langCode, apiKey, deeplCode);
+        const translations = await translateStrings(langCode, apiKey, deeplCode, isFree);
 
         // Only cache if we got actual translations (not English fallback)
         const hasTranslations = Object.keys(translations).some(
@@ -225,7 +228,7 @@ export function useTranslation(
     }
 
     loadTranslations();
-  }, [langCode, apiKey, deeplCode]);
+  }, [langCode, apiKey, deeplCode, isFree]);
 
   return state;
 }

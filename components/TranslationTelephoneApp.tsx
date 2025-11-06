@@ -10,10 +10,12 @@ import { TranslationChainResult, type LanguageCode } from '@/lib/types';
 
 interface TranslationTelephoneAppInnerProps {
   apiKey: string;
+  isFreeApi: boolean;
   setApiKey: (key: string) => void;
+  setIsFreeApi: (isFree: boolean) => void;
 }
 
-function TranslationTelephoneAppInner({ apiKey, setApiKey }: TranslationTelephoneAppInnerProps) {
+function TranslationTelephoneAppInner({ apiKey, isFreeApi, setApiKey, setIsFreeApi }: TranslationTelephoneAppInnerProps) {
   const { t } = useUILanguage();
   const [result, setResult] = useState<TranslationChainResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -43,6 +45,7 @@ function TranslationTelephoneAppInner({ apiKey, setApiKey }: TranslationTelephon
           text,
           languageChain,
           apiKey,
+          isFree: isFreeApi,
         }),
       });
 
@@ -114,6 +117,7 @@ function TranslationTelephoneAppInner({ apiKey, setApiKey }: TranslationTelephon
           text,
           randomChainLength: chainLength,
           apiKey,
+          isFree: isFreeApi,
         }),
       });
 
@@ -175,8 +179,11 @@ function TranslationTelephoneAppInner({ apiKey, setApiKey }: TranslationTelephon
       <div className="max-w-5xl mx-auto px-6 py-8">
         {/* Header with Settings */}
         <div className="flex justify-end items-center gap-4 mb-6">
-          <ApiKeyInput onApiKeyChange={setApiKey} />
-          <UILanguageSelector apiKey={apiKey} />
+          <ApiKeyInput onApiKeyChange={(key, isFree) => {
+            setApiKey(key);
+            setIsFreeApi(isFree);
+          }} />
+          <UILanguageSelector apiKey={apiKey} isFreeApi={isFreeApi} />
         </div>
 
         {/* Title and Subtitle */}
@@ -373,10 +380,16 @@ function TranslationTelephoneAppInner({ apiKey, setApiKey }: TranslationTelephon
 
 export default function TranslationTelephoneApp() {
   const [apiKey, setApiKey] = useState<string>('');
+  const [isFreeApi, setIsFreeApi] = useState<boolean>(true);
 
   return (
-    <UILanguageProvider apiKey={apiKey}>
-      <TranslationTelephoneAppInner apiKey={apiKey} setApiKey={setApiKey} />
+    <UILanguageProvider apiKey={apiKey} isFreeApi={isFreeApi}>
+      <TranslationTelephoneAppInner
+        apiKey={apiKey}
+        isFreeApi={isFreeApi}
+        setApiKey={setApiKey}
+        setIsFreeApi={setIsFreeApi}
+      />
     </UILanguageProvider>
   );
 }

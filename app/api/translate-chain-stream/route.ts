@@ -8,12 +8,13 @@ export interface TranslateChainRequest {
   randomChainLength?: number;
   startLanguage?: LanguageCode;
   apiKey?: string;
+  isFree?: boolean;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body: TranslateChainRequest = await request.json();
-    const { text, languageChain, randomChainLength, startLanguage, apiKey } = body;
+    const { text, languageChain, randomChainLength, startLanguage, apiKey, isFree } = body;
 
     // Require API key
     if (!apiKey || !apiKey.trim()) {
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Auto-detect language if not provided
-    const detectedLanguage = startLanguage || await detectLanguage(text, apiKey);
+    const detectedLanguage = startLanguage || await detectLanguage(text, apiKey, isFree);
 
     // Determine the language chain
     let chain: LanguageCode[];
@@ -67,10 +68,10 @@ export async function POST(request: NextRequest) {
             const targetLang = chain[i];
 
             // Translate to the target language
-            currentText = await translateText(currentText, targetLang, apiKey);
+            currentText = await translateText(currentText, targetLang, apiKey, isFree);
 
             // Back-translate to original language to measure divergence
-            const backTranslated = await translateText(currentText, detectedLanguage, apiKey);
+            const backTranslated = await translateText(currentText, detectedLanguage, apiKey, isFree);
 
             // Calculate divergence from original
             const divergence = calculateDivergence(text, backTranslated);

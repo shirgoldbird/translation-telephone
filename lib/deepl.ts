@@ -6,13 +6,22 @@ import {
   type TranslationChainResult,
   SUPPORTED_LANGUAGES,
 } from './types';
+import { getDeepLServerUrl } from './deepl-config';
 
-// Create translator instance with provided API key
-export function getTranslator(apiKey?: string): deepl.Translator {
+// Create translator instance with provided API key and server type
+export function getTranslator(apiKey?: string, isFree?: boolean): deepl.Translator {
   const key = apiKey || process.env.DEEPL_API_KEY;
   if (!key) {
     throw new Error('DeepL API key is required');
   }
+
+  // If isFree is explicitly set, use the corresponding server
+  if (isFree !== undefined) {
+    const serverUrl = getDeepLServerUrl(isFree);
+    return new deepl.Translator(key, { serverUrl });
+  }
+
+  // Otherwise use default (will auto-detect based on key format)
   return new deepl.Translator(key);
 }
 
@@ -21,8 +30,8 @@ export function getLanguageName(code: LanguageCode): string {
   return lang?.name || code;
 }
 
-export async function detectLanguage(text: string, apiKey?: string): Promise<LanguageCode> {
-  const translator = getTranslator(apiKey);
+export async function detectLanguage(text: string, apiKey?: string, isFree?: boolean): Promise<LanguageCode> {
+  const translator = getTranslator(apiKey, isFree);
   const result = await translator.translateText(text, null, 'EN-US' as deepl.TargetLanguageCode);
 
   // Get detected source language from the result
@@ -47,9 +56,10 @@ export async function detectLanguage(text: string, apiKey?: string): Promise<Lan
 export async function translateText(
   text: string,
   targetLang: LanguageCode,
-  apiKey?: string
+  apiKey?: string,
+  isFree?: boolean
 ): Promise<string> {
-  const translator = getTranslator(apiKey);
+  const translator = getTranslator(apiKey, isFree);
   const result = await translator.translateText(text, null, targetLang as deepl.TargetLanguageCode);
   return result.text;
 }

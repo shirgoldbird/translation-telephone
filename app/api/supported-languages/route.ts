@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as deepl from 'deepl-node';
+import { getDeepLServerUrl } from '@/lib/deepl-config';
 
 export async function GET(request: NextRequest) {
   try {
-    // Get API key from query params (user's key)
+    // Get API key and type from query params
     const { searchParams } = new URL(request.url);
     const apiKey = searchParams.get('apiKey');
+    const isFree = searchParams.get('isFree') === 'true';
 
     if (!apiKey) {
       return NextResponse.json(
@@ -14,7 +16,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const translator = new deepl.Translator(apiKey);
+    // Configure translator with the correct server URL
+    const serverUrl = getDeepLServerUrl(isFree);
+    const translator = new deepl.Translator(apiKey, { serverUrl });
 
     // Get target languages (what we can translate TO)
     const targetLanguages = await translator.getTargetLanguages();

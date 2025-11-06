@@ -21,9 +21,10 @@ const DEEPL_CODE_STORAGE_KEY = 'translation-telephone-ui-lang-deepl-code';
 interface UILanguageProviderProps {
   children: ReactNode;
   apiKey?: string;
+  isFreeApi?: boolean;
 }
 
-export function UILanguageProvider({ children, apiKey }: UILanguageProviderProps) {
+export function UILanguageProvider({ children, apiKey, isFreeApi }: UILanguageProviderProps) {
   const [language, setLanguageState] = useState<UILanguageCode>('en');
   const [deeplCode, setDeeplCodeState] = useState<string | undefined>(undefined);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -40,7 +41,7 @@ export function UILanguageProvider({ children, apiKey }: UILanguageProviderProps
   }, []);
 
   // Get translations for current language
-  const { translations, isLoading, error } = useTranslation(language, apiKey, deeplCode);
+  const { translations, isLoading, error } = useTranslation(language, apiKey, deeplCode, isFreeApi);
 
   // RTL languages
   const RTL_LANGUAGES = ['ar', 'he', 'fa', 'ur'];

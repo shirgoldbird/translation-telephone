@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as deepl from 'deepl-node';
 import { type LanguageCode } from '@/lib/types';
+import { getDeepLServerUrl } from '@/lib/deepl-config';
 
 export interface TranslateStringsBatchRequest {
   texts: string[];
   targetLang: string;
   deeplCode?: string; // Optional DeepL code for the language
   apiKey: string;
+  isFree?: boolean;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body: TranslateStringsBatchRequest = await request.json();
-    const { texts, targetLang, deeplCode, apiKey } = body;
+    const { texts, targetLang, deeplCode, apiKey, isFree } = body;
 
     if (!texts || !Array.isArray(texts) || texts.length === 0 || !targetLang || !apiKey) {
       return NextResponse.json(
@@ -24,8 +26,10 @@ export async function POST(request: NextRequest) {
     // Use provided deeplCode or uppercase the targetLang as fallback
     const deeplLang = deeplCode || targetLang.toUpperCase();
 
-    // Create translator and batch translate all texts
-    const translator = new deepl.Translator(apiKey);
+    // Create translator with appropriate server URL
+    const translator = isFree !== undefined
+      ? new deepl.Translator(apiKey, { serverUrl: getDeepLServerUrl(isFree) })
+      : new deepl.Translator(apiKey);
     const results = await translator.translateText(
       texts,
       null,

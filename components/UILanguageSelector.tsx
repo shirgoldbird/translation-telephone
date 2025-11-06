@@ -12,9 +12,10 @@ interface SupportedLanguage {
 
 interface UILanguageSelectorProps {
   apiKey?: string;
+  isFreeApi?: boolean;
 }
 
-export default function UILanguageSelector({ apiKey }: UILanguageSelectorProps) {
+export default function UILanguageSelector({ apiKey, isFreeApi = true }: UILanguageSelectorProps) {
   const { language, setLanguage, t } = useUILanguage();
   const [languages, setLanguages] = useState<SupportedLanguage[]>([
     { code: 'en', name: 'English', deeplCode: 'EN-GB' }
@@ -32,7 +33,7 @@ export default function UILanguageSelector({ apiKey }: UILanguageSelectorProps) 
           return;
         }
 
-        const response = await fetch(`/api/supported-languages?apiKey=${encodeURIComponent(apiKey)}`);
+        const response = await fetch(`/api/supported-languages?apiKey=${encodeURIComponent(apiKey)}&isFree=${isFreeApi}`);
         if (response.ok) {
           const data = await response.json();
           setLanguages(data.languages);
@@ -50,7 +51,7 @@ export default function UILanguageSelector({ apiKey }: UILanguageSelectorProps) 
     }
 
     fetchLanguages();
-  }, [apiKey]);
+  }, [apiKey, isFreeApi]);
 
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCode = e.target.value as UILanguageCode;
