@@ -51,7 +51,7 @@
 
 ### Quick Deploy
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/translation-telephone)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/shirgoldbird/translation-telephone)
 
 1. Click "Deploy" button above or visit [vercel.com](https://vercel.com)
 2. Import your GitHub repository
