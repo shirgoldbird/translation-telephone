@@ -55,14 +55,9 @@ export async function translateText(
 }
 
 export function calculateDivergence(original: string, backTranslated: string): number {
-  // Common stop words to ignore - these don't carry semantic meaning
+  // Very minimal stop words - only the most meaningless words
   const stopWords = new Set([
-    'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from',
-    'has', 'he', 'in', 'is', 'it', 'its', 'of', 'on', 'that', 'the',
-    'to', 'was', 'will', 'with', 'this', 'but', 'they', 'have', 'had',
-    'what', 'when', 'where', 'who', 'which', 'why', 'how', 'or', 'can',
-    'could', 'would', 'should', 'may', 'might', 'must', 'shall', 'i', 'you',
-    'we', 'my', 'your', 'our', 'me', 'him', 'her', 'us', 'them'
+    'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'of'
   ]);
 
   // Aggressive normalization: remove ALL punctuation and special characters
@@ -74,30 +69,32 @@ export function calculateDivergence(original: string, backTranslated: string): n
       .trim();
   };
 
-  // Extract meaningful words (content words > 2 chars, no stop words)
-  const getMeaningfulWords = (text: string): Set<string> => {
+  // Extract all words, filtering only the most basic stop words
+  const getWords = (text: string): string[] => {
     const words = normalize(text)
       .split(' ')
-      .filter(w => w.length > 2 && !stopWords.has(w));
-    return new Set(words);
+      .filter(w => w.length > 0 && !stopWords.has(w));
+    return words;
   };
 
-  const words1 = getMeaningfulWords(original);
-  const words2 = getMeaningfulWords(backTranslated);
+  const words1 = getWords(original);
+  const words2 = getWords(backTranslated);
 
-  // If no meaningful words in either, consider them identical
-  if (words1.size === 0 && words2.size === 0) {
+  // If no words in either, consider them identical
+  if (words1.length === 0 && words2.length === 0) {
     return 0;
   }
 
-  // If only one has meaningful words, 100% divergence
-  if (words1.size === 0 || words2.size === 0) {
+  // If only one has words, 100% divergence
+  if (words1.length === 0 || words2.length === 0) {
     return 100;
   }
 
-  // Calculate Jaccard similarity on meaningful words
-  const intersection = new Set([...words1].filter(x => words2.has(x)));
-  const union = new Set([...words1, ...words2]);
+  // Calculate Jaccard similarity
+  const set1 = new Set(words1);
+  const set2 = new Set(words2);
+  const intersection = new Set([...set1].filter(x => set2.has(x)));
+  const union = new Set([...set1, ...set2]);
 
   const similarity = intersection.size / union.size;
   const divergence = Math.round((1 - similarity) * 100);
